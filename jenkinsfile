@@ -25,13 +25,13 @@ pipeline {
             parallel{
                 stage ('Deploy to Staging'){
                     steps {
-                        sh "winscp -i ~/Downloads/chefec2keypair.pem **/target/*.war ec2-user@${params.ec2-jenkins-tomcat-stg}:/var/lib/tomcat7/webapps"
+                        bat "winscp -i ~/Downloads/chefec2keypair.pem **/target/*.war ec2-user@${params.ec2-jenkins-tomcat-stg}:/var/lib/tomcat7/webapps"
                     }
                 }
 
                 stage ("Deploy to Production"){
                     steps {
-                        sh "winscp -i ~/Downloads/chefec2keypair.pem **/target/*.war ec2-user@${params.ec2-jenkins-tomcat-prod}:/var/lib/tomcat7/webapps"
+                        bat "winscp -i ~/Downloads/chefec2keypair.pem **/target/*.war ec2-user@${params.ec2-jenkins-tomcat-prod}:/var/lib/tomcat7/webapps"
                     }
                 }
             }
