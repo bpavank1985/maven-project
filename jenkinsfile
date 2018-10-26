@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'ec2-jenkins-tomcat-stg', defaultValue: '52.12.143.95' ,  description: 'Staging Server')
+        string(name: 'ec2-jenkins-tomcat-prod', defaultValue: '35.160.43.161' ,  description: 'Production Server')
+        }
+    triggers{
+        pollSCM('* * * * *')
+        }
+    stages{
+        stage('Build'){
+            steps {
+                sh 'mvn clean package'
+            }
+            post {
+                success {
+                    echo 'Now Archiving...'
+                    archiveArtifacts artifacts: '**/target/*.war'
+                }
+            }
+        }
+
+        stage ('Deployments'){
+            parallel{
+                stage ('Deploy to Staging'){
+                    steps {
+                        sh "scp -i ~/Downloads/chefec2keypair.pem **/target/*.war ec2-user@${params.ec2-jenkins-tomcat-stg}:/var/lib/tomcat7/webapps"
+                    }
+                }
+
+                stage ("Deploy to Production"){
+                    steps {
+                        sh "scp -i ~/Downloads/chefec2keypair.pem **/target/*.war ec2-user@${params.ec2-jenkins-tomcat-prod}:/var/lib/tomcat7/webapps"
+                    }
+                }
+            }
+        }
+    }
+}
